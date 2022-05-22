@@ -59,7 +59,12 @@ async function run() {
       const result = await ordersCollection.insertOne(orders);
       res.send(result)
     })
-    
+    // addToReviews
+    app.post('/reviews', async (req, res) => {
+      const review = req.body;
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result)
+    })
     //getMyOrders
     app.get('/orders', async(req,res)=>{
       const allOrder = await ordersCollection.find().toArray();
