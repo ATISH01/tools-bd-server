@@ -27,6 +27,29 @@ async function run() {
         const tools = await toolsCollection.find().toArray();
         res.send(tools);
       })
+      app.get('/tools/:id',  async (req, res) => {
+        const id=req.params.id;
+        const query={_id:ObjectId(id)}
+        const tools = await toolsCollection.findOne(query);
+        res.send(tools);
+      })
+
+      //update
+      app.put('/tools/:id', async (req, res) => {
+        const id = req.params.id;
+        const updatedCart = req.body;
+        const filter = { _id: ObjectId(id) };
+        const options = { upsert: true };
+        const updatedDoc = {
+            $set: {
+              selected: updatedCart.selected
+            }
+        };
+        const result = await toolsCollection.updateOne(filter, updatedDoc, options);
+        res.send(result);
+
+    })
+
 
     }
     finally { }
