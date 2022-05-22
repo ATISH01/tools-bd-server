@@ -23,7 +23,7 @@ async function run() {
     await client.connect();
     const toolsCollection = client.db('tools-bd').collection('products');
     const ordersCollection = client.db('tools-bd').collection('orders');
-    
+    const reviewsCollection = client.db('tools-bd').collection('reviews');
     console.log('Connected');
 
     app.get('/tools', async (req, res) => {
@@ -59,12 +59,20 @@ async function run() {
       const result = await ordersCollection.insertOne(orders);
       res.send(result)
     })
+    
     //getMyOrders
     app.get('/orders', async(req,res)=>{
       const allOrder = await ordersCollection.find().toArray();
       res.send(allOrder);
     })
-    
+    //deleteFromCart
+    app.delete('/orders/:id',async(req,res)=>{
+      const id=req.params.id;
+      console.log(id);
+      const query={_id:ObjectId(id)};
+      const result = ordersCollection.deleteOne(query);
+      res.send(result)
+    })
   }
   finally { }
 }
