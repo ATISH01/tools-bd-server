@@ -23,6 +23,7 @@ async function run() {
     await client.connect();
     const toolsCollection = client.db('tools-bd').collection('products');
     const ordersCollection = client.db('tools-bd').collection('orders');
+    
     console.log('Connected');
 
     app.get('/tools', async (req, res) => {
@@ -58,7 +59,12 @@ async function run() {
       const result = await ordersCollection.insertOne(orders);
       res.send(result)
     })
-
+    //getMyOrders
+    app.get('/orders', async(req,res)=>{
+      const allOrder = await ordersCollection.find().toArray();
+      res.send(allOrder);
+    })
+    
   }
   finally { }
 }
