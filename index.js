@@ -24,6 +24,7 @@ async function run() {
     const toolsCollection = client.db('tools-bd').collection('products');
     const ordersCollection = client.db('tools-bd').collection('orders');
     const reviewsCollection = client.db('tools-bd').collection('reviews');
+    const profileCollection = client.db('tools-bd').collection('profiles');
     console.log('Connected');
 
     app.get('/tools', async (req, res) => {
@@ -52,11 +53,18 @@ async function run() {
       res.send(result);
 
     })
+    
 
     // addToOrder
     app.post('/orders', async (req, res) => {
       const orders = req.body;
       const result = await ordersCollection.insertOne(orders);
+      res.send(result)
+    })
+    // addToProfile
+    app.post('/profile', async (req, res) => {
+      const orders = req.body;
+      const result = await profileCollection.insertOne(orders);
       res.send(result)
     })
     // addToReviews
@@ -69,6 +77,11 @@ async function run() {
     app.get('/orders', async(req,res)=>{
       const allOrder = await ordersCollection.find().toArray();
       res.send(allOrder);
+    })
+    //getMyReviews
+    app.get('/reviews', async(req,res)=>{
+      const allReview = await reviewsCollection.find().toArray();
+      res.send(allReview);
     })
     //deleteFromCart
     app.delete('/orders/:id',async(req,res)=>{
