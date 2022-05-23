@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-
+const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -25,6 +25,7 @@ async function run() {
     const ordersCollection = client.db('tools-bd').collection('orders');
     const reviewsCollection = client.db('tools-bd').collection('reviews');
     const profileCollection = client.db('tools-bd').collection('profiles');
+    const usersCollection = client.db('tools-bd').collection('users');
     console.log('Connected');
 
     app.get('/tools', async (req, res) => {
@@ -64,6 +65,12 @@ async function run() {
     // addToProfile
     app.post('/profile', async (req, res) => {
       const orders = req.body;
+      console.log(orders.email);
+      const query={email:orders.email};
+      const exists = await profileCollection.findOne(query);
+      if (exists) {
+        return res.send({ success: false, user: exists })
+      }
       const result = await profileCollection.insertOne(orders);
       res.send(result)
     })
@@ -77,6 +84,30 @@ async function run() {
     app.get('/orders', async(req,res)=>{
       const allOrder = await ordersCollection.find().toArray();
       res.send(allOrder);
+    })
+
+    // createUser
+    app.put('/user/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    })
+    /* //getMyProfile
+    app.get('/profile', async(req,res)=>{
+      const profiles = await profileCollection.find().toArray();
+      res.send(profiles);
+    }) */
+    //getMyProfile
+    app.get('/profile/:email', async(req,res)=>{
+      const email = req.params.email;
+      const user = await profileCollection.findOne({email: email});
+      res.send(user);
     })
     //getMyReviews
     app.get('/reviews', async(req,res)=>{
