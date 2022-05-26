@@ -46,8 +46,20 @@ async function run() {
     const paymentsCollection = client.db('tools-bd').collection('payments');
     console.log('Connected');
 
+    const verifyAdmin = async (req, res, next) => {
+      const requester = req.decoded.email;
+      const requesterAccount = await usersCollection.findOne({ email: requester });
+      if (requesterAccount.role === 'admin') {
+        next();
+      }
+      else {
+        res.status(403).send({ message: 'forbidden' });
+      }
+    }
+
+
     app.get('/tools', async (req, res) => {
-      const tools = await toolsCollection.find().toArray();
+      const tools = await (await toolsCollection.find().toArray()).reverse();
       res.send(tools);
     })
     //addNewItem
@@ -159,13 +171,13 @@ async function run() {
       res.send(orders)
     })
     //getUserForAdmin
-    app.get('/user', JWTverify, async (req, res) => {
+    app.get('/user', JWTverify, verifyAdmin, async (req, res) => {
       const users = await usersCollection.find().toArray();
       res.send(users)
     })
 
     // createAdmin
-    app.put('/user/admin/:email', JWTverify, async (req, res) => {
+    app.put('/user/admin/:email', JWTverify, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const requester = req.decoded.email;
       const reqAcc = await usersCollection.findOne({ email: requester });
@@ -221,7 +233,7 @@ async function run() {
     
     //getMyReviews
     app.get('/reviews', async (req, res) => {
-      const allReview = await reviewsCollection.find().toArray();
+      const allReview = await (await reviewsCollection.find().toArray()).reverse();
       res.send(allReview);
     })
     //deleteFromCart
